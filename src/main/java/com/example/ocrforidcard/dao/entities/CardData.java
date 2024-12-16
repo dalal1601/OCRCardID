@@ -18,7 +18,7 @@ public class CardData {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long CardDataId;
 
     private String firstName;
     private String lastName;

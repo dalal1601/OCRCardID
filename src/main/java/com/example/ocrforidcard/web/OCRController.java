@@ -13,6 +13,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/ocr")
+@CrossOrigin("*")
 public class OCRController {
 
         @Autowired
@@ -57,6 +58,8 @@ public class OCRController {
                 return new ResponseEntity<>("Error validating the data: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
+
+        //getall....1 - FULL STACK (SPRING BOOT 3 - ANGULAR 16) - PREPARER BACKEND vid1
 
 
 }
