@@ -29,6 +29,14 @@ public class OCRController {
                 Map<String, String> ocrResult = ocrService.performOCR(file);
                 double confidence = ocrService.calculateConfidence(ocrResult);
 
+                // Debugging the OCR result to check the extracted values
+                System.out.println("OCR Result: " + ocrResult);
+
+                // Check if the OCR result is not empty
+                if (ocrResult == null || ocrResult.isEmpty()) {
+                    return new ResponseEntity<>("OCR failed to extract text from the image", HttpStatus.BAD_REQUEST);
+                }
+
                 // Create a new CardData entity
                 CardData cardData = new CardData();
                 cardData.setFirstName(ocrResult.get("firstname"));
@@ -47,7 +55,7 @@ public class OCRController {
             }
         }
 
-        // Endpoint to validate and update OCR data
+    // Endpoint to validate and update OCR data
         @PostMapping("/validate")
         public ResponseEntity<String> validateData(@RequestBody CardData data) {
             try {

@@ -55,7 +55,8 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.GET, "/api/users").hasAuthority("ADMIN")
                                 .requestMatchers(HttpMethod.GET, "/api/users/{id}").hasAnyAuthority("ADMIN", "USER")
                                 .requestMatchers(HttpMethod.POST, "/api/ocr/validate").hasAnyAuthority("ADMIN", "USER")
-                                .requestMatchers(HttpMethod.POST, "/api/ocr/upload").hasAuthority("USER")
+                                .requestMatchers(HttpMethod.POST, "/api/ocr/upload").hasAnyAuthority("ADMIN", "USER")
+
                                 .anyRequest().authenticated()
                 );
 
