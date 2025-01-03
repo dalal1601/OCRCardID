@@ -1,7 +1,10 @@
 package com.example.ocrforidcard.web;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import com.example.ocrforidcard.dao.entities.User;
 import com.example.ocrforidcard.dao.repositories.UserRepository;
+import com.example.ocrforidcard.security.SecurityParams;
 import com.example.ocrforidcard.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
@@ -9,7 +12,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -46,4 +52,34 @@ public class UserRestController {
         return currentUser.getRoles().stream()
                 .anyMatch(role -> role.getRole().equals("ADMIN"));
     }
+
+    @PostMapping("/register")
+      public Map<String, String> registerAndGenerateToken(@RequestBody User user) {
+        user.setEnabled(true);
+        User savedUser = userService.saveUser(user);
+        userService.addRoleToUser(user.getUsername(), "USER");
+
+        // Générer un JWT pour l'utilisateur enregistré
+        String token = JWT.create()
+                .withSubject(user.getUsername())
+                .withExpiresAt(new Date(System.currentTimeMillis() + SecurityParams.EXPIRATION_TIME))
+                .sign(Algorithm.HMAC256(SecurityParams.SECRET));
+
+        Map<String, String> response = new HashMap<>();
+        response.put("username", savedUser.getUsername());
+        response.put("token", SecurityParams.PREFIX + token);
+        return response;
+    }
+    /*
+     * @Override
+    public User saveUser(User user) {
+      if (userRepository.findByUsername(user.getUsername()) != null) {
+        throw new RuntimeException("Username already exists");
+    }
+    user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+    return userRepository.save(user);
+}
+
+     * }*/
+
 }

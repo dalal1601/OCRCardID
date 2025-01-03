@@ -5,6 +5,8 @@ import com.example.ocrforidcard.dao.entities.Role;
 import com.example.ocrforidcard.dao.repositories.RoleRepository;
 import com.example.ocrforidcard.dao.repositories.UserRepository;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -24,11 +26,20 @@ public class UserServiceImpl implements UserService{
     @Autowired
     BCryptPasswordEncoder bCryptPasswordEncoder;
 
+
+    private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+
     @Override
     public User saveUser(User user) {
+        if (userRepository.findByUsername(user.getUsername()) != null) {
+            logger.error("Attempt to save user with existing username: {}", user.getUsername());
+            throw new RuntimeException("Username already exists");
+        }
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+        logger.info("Saving new user: {}", user.getUsername());
         return userRepository.save(user);
     }
+
 
     public User findUserByUsername(String username) {
         return userRepository.findUserByUsernameWithRoles(username)
@@ -46,10 +57,15 @@ public class UserServiceImpl implements UserService{
     public User addRoleToUser(String username, String rolename) {
         User user = userRepository.findByUsername(username);
         Role role = roleRepository.findByRole(rolename);
-        user.getRoles().add(role);  // Add the role to the user's roles list
 
-        return userRepository.save(user);  // Save the updated user entity
+        if (role == null) {
+            throw new RuntimeException("Role " + rolename + " not found");
+        }
+
+        user.getRoles().add(role);
+        return userRepository.save(user);
     }
+
 
 
     @Override
@@ -63,4 +79,7 @@ public class UserServiceImpl implements UserService{
         return userRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("User with ID " + id + " not found"));
     }
+
+
+
 }

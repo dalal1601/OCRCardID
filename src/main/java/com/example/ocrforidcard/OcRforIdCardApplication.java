@@ -3,7 +3,6 @@ package com.example.ocrforidcard;
 import com.example.ocrforidcard.dao.entities.Role;
 import com.example.ocrforidcard.dao.entities.User;
 import com.example.ocrforidcard.services.UserService;
-import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -33,5 +32,6 @@ public class OcRforIdCardApplication {
 		userService.addRoleToUser("admin", "ADMIN");
 		userService.addRoleToUser("user", "USER");
 	}
+
 
 }

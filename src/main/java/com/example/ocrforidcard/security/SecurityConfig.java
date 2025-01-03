@@ -51,7 +51,7 @@ public class SecurityConfig {
                 )
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth ->
-                        auth.requestMatchers("/login").permitAll()
+                        auth.requestMatchers("/login", "/api/register").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/users").hasAuthority("ADMIN")
                                 .requestMatchers(HttpMethod.GET, "/api/users/{id}").hasAnyAuthority("ADMIN", "USER")
                                 .requestMatchers(HttpMethod.POST, "/api/ocr/validate").hasAnyAuthority("ADMIN", "USER")
