@@ -3,6 +3,8 @@ package com.example.ocrforidcard;
 import com.example.ocrforidcard.dao.entities.Role;
 import com.example.ocrforidcard.dao.entities.User;
 import com.example.ocrforidcard.services.UserService;
+import nu.pattern.OpenCV;
+import org.opencv.core.Core;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -16,6 +18,15 @@ public class OcRforIdCardApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(OcRforIdCardApplication.class, args);
+
+		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+		OpenCV.loadLocally();
+		System.out.println("OpenCV loaded successfully!");
+		System.setProperty("java.library.path", "C:\\Users\\user\\Downloads\\opencv\\build\\java\\x64\\opencv_java490.dll");
+
+		System.out.println(System.getProperty("java.library.path"));
+
+
 	}
 	@Bean
 	BCryptPasswordEncoder bCryptPasswordEncoder() { return new BCryptPasswordEncoder(); }
