@@ -27,7 +27,7 @@ public class SecurityConfig {
 
     @Autowired
     AuthenticationManager authenticationManager;
-
+//BCryptPasswordEncoder : Utilisé pour encoder et comparer les mots de passe.
     @Bean
     public AuthenticationManager authenticationManager(
             HttpSecurity httpSecurity, BCryptPasswordEncoder bCryptPasswordEncoder,
@@ -45,10 +45,11 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
+                //CSRF est désactivé car l'application utilise des tokens JWT pour sécuriser les requêtes,
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
+                )//L'application ne stocke pas d'état utilisateur sur le serveur. Chaque requête est validée uniquement via le token JWT
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth ->
                         auth.requestMatchers("/login", "/api/register").permitAll()
@@ -66,7 +67,7 @@ public class SecurityConfig {
 
         return httpSecurity.build();
     }
-
+//configure le Cross-Origin Resource Sharing (CORS) pour autoriser les requêtes provenant d'une origine
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();

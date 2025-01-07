@@ -13,7 +13,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.ArrayList;
 import java.util.List;
-
+//cette classe est utilisée pour charger les informations d'un user à partir d'une source de données
 @Service
 public class MyUserDetailsService  implements UserDetailsService {
 
