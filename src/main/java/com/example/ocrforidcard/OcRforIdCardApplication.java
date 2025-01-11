@@ -18,12 +18,8 @@ public class OcRforIdCardApplication {
 
 	private static final Logger logger = LoggerFactory.getLogger(OcRforIdCardApplication.class);
 
-	private final UserService userService;
-
 	@Autowired
-	public OcRforIdCardApplication(UserService userService) {
-		this.userService = userService;
-	}
+	private UserService userService;
 
 	public static void main(String[] args) {
 		SpringApplication.run(OcRforIdCardApplication.class, args);
@@ -31,7 +27,6 @@ public class OcRforIdCardApplication {
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 		OpenCV.loadLocally();
 		logger.info("OpenCV loaded successfully!");
-
 		System.setProperty("java.library.path", "C:\\Users\\user\\Downloads\\opencv\\build\\java\\x64\\opencv_java490.dll");
 
 		logger.info("Library path: {}", System.getProperty("java.library.path"));
