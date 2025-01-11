@@ -3,7 +3,8 @@ package com.example.ocrforidcard.web;
 import com.example.ocrforidcard.dao.entities.CardData;
 import com.example.ocrforidcard.dao.repositories.CardDataRepository;
 import com.example.ocrforidcard.services.OCR;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,11 +17,16 @@ import java.util.Map;
 @CrossOrigin("*")
 public class OCRController {
 
-    @Autowired
-    private OCR ocrService;
+    private static final Logger logger = LoggerFactory.getLogger(OCRController.class);
 
-    @Autowired
-    private CardDataRepository cardDataRepository;
+    private final OCR ocrService;
+    private final CardDataRepository cardDataRepository;
+
+    // Constructor injection
+    public OCRController(OCR ocrService, CardDataRepository cardDataRepository) {
+        this.ocrService = ocrService;
+        this.cardDataRepository = cardDataRepository;
+    }
 
     // Endpoint to upload an image and perform OCR
     @PostMapping("/upload")
@@ -29,8 +35,8 @@ public class OCRController {
             Map<String, String> ocrResult = ocrService.performOCR(file);
             double confidence = ocrService.calculateConfidence(ocrResult);
 
-            // Debugging the OCR result to check the extracted values
-            System.out.println("OCR Result: " + ocrResult);
+            // Debugging the OCR result using the logger
+            logger.info("OCR Result: {}", ocrResult);
 
             // Check if the OCR result is not empty
             if (ocrResult == null || ocrResult.isEmpty()) {
@@ -51,6 +57,7 @@ public class OCRController {
 
             return new ResponseEntity<>("OCR successful. Confidence: " + confidence + "%", HttpStatus.OK);
         } catch (Exception e) {
+            logger.error("Error processing the image: {}", e.getMessage(), e);
             return new ResponseEntity<>("Error processing the image: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -63,11 +70,8 @@ public class OCRController {
             cardDataRepository.save(data);
             return new ResponseEntity<>("Data validated and saved successfully", HttpStatus.OK);
         } catch (Exception e) {
+            logger.error("Error validating the data: {}", e.getMessage(), e);
             return new ResponseEntity<>("Error validating the data: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-
-
-
 }

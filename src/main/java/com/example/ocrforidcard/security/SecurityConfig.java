@@ -1,7 +1,6 @@
 package com.example.ocrforidcard.security;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -25,9 +24,10 @@ import java.util.Collections;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Autowired
-    AuthenticationManager authenticationManager;
-//BCryptPasswordEncoder : Utilisé pour encoder et comparer les mots de passe.
+    // Define constants for role names
+    private static final String ADMIN_ROLE = "ADMIN";
+    private static final String USER_ROLE = "USER";
+
     @Bean
     public AuthenticationManager authenticationManager(
             HttpSecurity httpSecurity, BCryptPasswordEncoder bCryptPasswordEncoder,
@@ -43,21 +43,20 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, AuthenticationManager authenticationManager) throws Exception {
         httpSecurity
-                //CSRF est désactivé car l'application utilise des tokens JWT pour sécuriser les requêtes,
+                // CSRF is disabled because the application uses JWT tokens for securing requests
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )//L'application ne stocke pas d'état utilisateur sur le serveur. Chaque requête est validée uniquement via le token JWT
+                ) // The application does not store user state on the server. Each request is validated only via the JWT token
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth ->
                         auth.requestMatchers("/login", "/api/register").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/api/users").hasAuthority("ADMIN")
-                                .requestMatchers(HttpMethod.GET, "/api/users/{id}").hasAnyAuthority("ADMIN", "USER")
-                                .requestMatchers(HttpMethod.POST, "/api/ocr/validate").hasAnyAuthority("ADMIN", "USER")
-                                .requestMatchers(HttpMethod.POST, "/api/ocr/upload").hasAnyAuthority("ADMIN", "USER")
-
+                                .requestMatchers(HttpMethod.GET, "/api/users").hasAuthority(ADMIN_ROLE)
+                                .requestMatchers(HttpMethod.GET, "/api/users/{id}").hasAnyAuthority(ADMIN_ROLE, USER_ROLE)
+                                .requestMatchers(HttpMethod.POST, "/api/ocr/validate").hasAnyAuthority(ADMIN_ROLE, USER_ROLE)
+                                .requestMatchers(HttpMethod.POST, "/api/ocr/upload").hasAnyAuthority(ADMIN_ROLE, USER_ROLE)
                                 .anyRequest().authenticated()
                 );
 
@@ -67,7 +66,8 @@ public class SecurityConfig {
 
         return httpSecurity.build();
     }
-//configure le Cross-Origin Resource Sharing (CORS) pour autoriser les requêtes provenant d'une origine
+
+    // Configure Cross-Origin Resource Sharing (CORS) to allow requests from a specific origin
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();

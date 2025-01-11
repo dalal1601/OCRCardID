@@ -6,7 +6,6 @@ import com.example.ocrforidcard.dao.entities.User;
 import com.example.ocrforidcard.dao.repositories.UserRepository;
 import com.example.ocrforidcard.security.SecurityParams;
 import com.example.ocrforidcard.services.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -21,11 +20,15 @@ import java.util.Map;
 @RequestMapping("/api")
 @CrossOrigin(origins = "*")
 public class UserRestController {
-    @Autowired
-    UserRepository userRepository;
-    @Autowired
-    UserService userService;
 
+    private final UserRepository userRepository;
+    private final UserService userService;
+
+    // Constructor injection
+    public UserRestController(UserRepository userRepository, UserService userService) {
+        this.userRepository = userRepository;
+        this.userService = userService;
+    }
 
     @GetMapping(path = "/users")
     @PreAuthorize("hasAuthority('ADMIN')") // Only admins can access this
@@ -54,7 +57,7 @@ public class UserRestController {
     }
 
     @PostMapping("/register")
-      public Map<String, String> registerAndGenerateToken(@RequestBody User user) {
+    public Map<String, String> registerAndGenerateToken(@RequestBody User user) {
         user.setEnabled(true);
         User savedUser = userService.saveUser(user);
         userService.addRoleToUser(user.getUsername(), "USER");
@@ -70,16 +73,4 @@ public class UserRestController {
         response.put("token", SecurityParams.PREFIX + token);
         return response;
     }
-    /*
-     * @Override
-    public User saveUser(User user) {
-      if (userRepository.findByUsername(user.getUsername()) != null) {
-        throw new RuntimeException("Username already exists");
-    }
-    user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-    return userRepository.save(user);
-}
-
-     * }*/
-
 }
